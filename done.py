@@ -1,11 +1,10 @@
 import csv
-#from time import localtime, strftime
 import datetime 
 from optparse import OptionParser
+# import bettertime
 
 def get_date_time():
-	# return strftime("%Y-%m-%d, %I:%M%p", localtime())
-	return datetime.datetime.now()
+	return datetime.datetime.today()
 
 def load_tasks(filename="done.csv"):
 	r = csv.reader(open(filename))
@@ -16,10 +15,10 @@ def load_tasks(filename="done.csv"):
 
 def save_task(task, filename="done.csv"):
 	date_time = get_date_time()
-	print date_time
 	with open(filename, 'ab') as csvfile:
 		w = csv.writer(csvfile)
 		w.writerow([date_time,task])
+
 
 if __name__ == '__main__':
 	parser = OptionParser()
@@ -31,23 +30,24 @@ if __name__ == '__main__':
 
 	else: # print out what was done
 		done_list = load_tasks()
-		today = datetime.date.today().strftime("%Y-%m-%d")
-		yesterday = datetime.date.today()-datetime.timedelta(days=1)
+		timeframe = "".join(args).lower()
+		today = datetime.date.today()
+
+		# today = datetime.date.today().strftime("%Y-%m-%d")
+		# yesterday = datetime.date.today()-datetime.timedelta(days=1)
 		# TODO: add error handling for no arguments
 
-		if args[0].lower() == "today":
+		for date,task in done_list.iteritems():
+			task_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f").date()
 
-			for date,task in done_list.iteritems():
-				if date >= today:
+			if timeframe == "today" and task_date == today:
 					print task
-		elif args[0].lower() == "yesterday":
-			
-			for date,task in done_list.iteritems():
-				if date < today and date >= yesterday.strftime("%Y-%m-%d"):
+			elif timeframe == "yesterday" and task_date == today - datetime.timedelta(days=1):
 					print task
-		else:
-			for date,task in done_list.iteritems():
-				print date,task
+			elif timeframe == "thisweek" and task_date > today  and task_date < today - datetime.timedelta(days=today.weekday(), weeks=1):
+					print task
 
-		
+
+
+
 
